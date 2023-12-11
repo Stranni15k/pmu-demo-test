@@ -66,6 +66,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3:1.1.2")
+    implementation("com.google.firebase:protolite-well-known-types:18.0.0")
 
     // Room
     val room_version = "2.5.2"

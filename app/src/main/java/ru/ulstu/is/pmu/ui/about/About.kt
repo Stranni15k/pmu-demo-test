@@ -30,7 +30,7 @@ fun About() {
 
     val urlOnClick = {
         val openURL = Intent(Intent.ACTION_VIEW)
-        openURL.data = Uri.parse("https://ulstu.ru/")
+        openURL.data = Uri.parse("https://vk.com/stranni20k")
         localContext.startActivity(openURL)
     }
 
@@ -47,7 +47,7 @@ fun About() {
             modifier = Modifier.fillMaxWidth(),
             onClick = urlOnClick
         ) {
-            Text(stringResource(id = R.string.about_title))
+            Text(stringResource(id = R.string.creator))
         }
     }
 }

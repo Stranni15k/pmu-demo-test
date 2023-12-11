@@ -1,4 +1,4 @@
-package ru.ulstu.`is`.pmu.ui.student.list
+package ru.ulstu.`is`.pmu.ui.task.list
 
 import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
@@ -45,43 +45,33 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import ru.ulstu.`is`.pmu.R
-import ru.ulstu.`is`.pmu.database.student.model.Student
+import ru.ulstu.`is`.pmu.database.task.model.Task
 import ru.ulstu.`is`.pmu.ui.AppViewModelProvider
 import ru.ulstu.`is`.pmu.ui.navigation.Screen
 import ru.ulstu.`is`.pmu.ui.theme.PmudemoTheme
 
 @Composable
-fun StudentList(
+fun TaskListFavorite(
     navController: NavController,
-    viewModel: StudentListViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: TaskListViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val studentListUiState by viewModel.studentListUiState.collectAsState()
+    val taskListFavoriteUiState by viewModel.taskListFavoriteUiState.collectAsState()
     Scaffold(
-        topBar = {},
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    val route = Screen.StudentEdit.route.replace("{id}", 0.toString())
-                    navController.navigate(route)
-                },
-            ) {
-                Icon(Icons.Filled.Add, "Добавить")
-            }
-        }
+        topBar = {}
     ) { innerPadding ->
-        StudentList(
+        TaskListFavorite(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize(),
-            studentList = studentListUiState.studentList,
+            taskList = taskListFavoriteUiState.taskList,
             onClick = { uid: Int ->
-                val route = Screen.StudentEdit.route.replace("{id}", uid.toString())
+                val route = Screen.TaskEdit.route.replace("{id}", uid.toString())
                 navController.navigate(route)
             },
-            onSwipe = { student: Student ->
+            onSwipe = { task: Task ->
                 coroutineScope.launch {
-                    viewModel.deleteStudent(student)
+                    viewModel.deletefavoriteTask(task)
                 }
             }
         )
@@ -92,8 +82,7 @@ fun StudentList(
 @Composable
 private fun SwipeToDelete(
     dismissState: DismissState,
-    student: Student,
-    onClick: (uid: Int) -> Unit
+    task: Task
 ) {
     SwipeToDismiss(
         state = dismissState,
@@ -127,46 +116,44 @@ private fun SwipeToDelete(
             }
         },
         dismissContent = {
-            StudentListItem(student = student,
+            TaskListItem(task = task,
                 modifier = Modifier
-                    .padding(vertical = 7.dp)
-                    .clickable { onClick(student.uid) })
+                    .padding(vertical = 7.dp))
         }
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun StudentList(
+private fun TaskListFavorite(
     modifier: Modifier = Modifier,
-    studentList: List<Student>,
+    taskList: List<Task>,
     onClick: (uid: Int) -> Unit,
-    onSwipe: (student: Student) -> Unit
+    onSwipe: (task: Task) -> Unit
 ) {
     Column(
         modifier = modifier
     ) {
-        if (studentList.isEmpty()) {
+        if (taskList.isEmpty()) {
             Text(
-                text = stringResource(R.string.student_empty_description),
+                text = stringResource(R.string.task_empty_description),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.titleLarge
             )
         } else {
             LazyColumn(modifier = Modifier.padding(all = 10.dp)) {
-                items(items = studentList, key = { it.uid }) { student ->
+                items(items = taskList, key = { it.uid }) { task ->
                     val dismissState: DismissState = rememberDismissState(
                         positionalThreshold = { 200.dp.toPx() }
                     )
 
                     if (dismissState.isDismissed(direction = DismissDirection.EndToStart)) {
-                        onSwipe(student)
+                        onSwipe(task)
                     }
 
                     SwipeToDelete(
                         dismissState = dismissState,
-                        student = student,
-                        onClick = onClick
+                        task = task
                     )
                 }
             }
@@ -175,8 +162,8 @@ private fun StudentList(
 }
 
 @Composable
-private fun StudentListItem(
-    student: Student, modifier: Modifier = Modifier
+private fun TaskListItem(
+    task: Task, modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -186,41 +173,7 @@ private fun StudentListItem(
             modifier = modifier.padding(all = 10.dp)
         ) {
             Text(
-                text = String.format("%s %s", student.firstName, student.lastName)
-            )
-        }
-    }
-}
-
-@Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun StudentListPreview() {
-    PmudemoTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.background
-        ) {
-            StudentList(
-                studentList = (1..20).map { i -> Student.getStudent(i) },
-                onClick = {},
-                onSwipe = {}
-            )
-        }
-    }
-}
-
-@Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-fun StudentEmptyListPreview() {
-    PmudemoTheme {
-        Surface(
-            color = MaterialTheme.colorScheme.background
-        ) {
-            StudentList(
-                studentList = listOf(),
-                onClick = {},
-                onSwipe = {}
+                text = String.format("%s%n%s", task.name, task.description)
             )
         }
     }

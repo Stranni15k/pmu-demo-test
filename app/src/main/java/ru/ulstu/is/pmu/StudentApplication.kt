@@ -4,7 +4,7 @@ import android.app.Application
 import ru.ulstu.`is`.pmu.database.AppContainer
 import ru.ulstu.`is`.pmu.database.AppDataContainer
 
-class StudentApplication : Application() {
+class TaskApplication : Application() {
     lateinit var container: AppContainer
 
     override fun onCreate() {

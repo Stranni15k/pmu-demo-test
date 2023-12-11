@@ -5,27 +5,27 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import ru.ulstu.`is`.pmu.StudentApplication
-import ru.ulstu.`is`.pmu.ui.student.edit.GroupDropDownViewModel
-import ru.ulstu.`is`.pmu.ui.student.edit.StudentEditViewModel
-import ru.ulstu.`is`.pmu.ui.student.list.StudentListViewModel
+import ru.ulstu.`is`.pmu.TaskApplication
+import ru.ulstu.`is`.pmu.ui.task.edit.UserDropDownViewModel
+import ru.ulstu.`is`.pmu.ui.task.edit.TaskEditViewModel
+import ru.ulstu.`is`.pmu.ui.task.list.TaskListViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
         initializer {
-            StudentListViewModel(studentApplication().container.studentRepository)
+            TaskListViewModel(taskApplication().container.taskRepository)
         }
         initializer {
-            StudentEditViewModel(
+            TaskEditViewModel(
                 this.createSavedStateHandle(),
-                studentApplication().container.studentRepository
+                taskApplication().container.taskRepository
             )
         }
         initializer {
-            GroupDropDownViewModel(studentApplication().container.groupRepository)
+            UserDropDownViewModel(taskApplication().container.userRepository)
         }
     }
 }
 
-fun CreationExtras.studentApplication(): StudentApplication =
-    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as StudentApplication)
+fun CreationExtras.taskApplication(): TaskApplication =
+    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as TaskApplication)

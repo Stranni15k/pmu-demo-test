@@ -8,15 +8,15 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ru.ulstu.`is`.pmu.database.student.dao.GroupDao
-import ru.ulstu.`is`.pmu.database.student.dao.StudentDao
-import ru.ulstu.`is`.pmu.database.student.model.Group
-import ru.ulstu.`is`.pmu.database.student.model.Student
+import ru.ulstu.`is`.pmu.database.task.dao.TaskDao
+import ru.ulstu.`is`.pmu.database.task.dao.UserDao
+import ru.ulstu.`is`.pmu.database.task.model.User
+import ru.ulstu.`is`.pmu.database.task.model.Task
 
-@Database(entities = [Student::class, Group::class], version = 1, exportSchema = false)
+@Database(entities = [Task::class, User::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun studentDao(): StudentDao
-    abstract fun groupDao(): GroupDao
+    abstract fun taskDao(): TaskDao
+    abstract fun userDao(): UserDao
 
     companion object {
         private const val DB_NAME: String = "pmy-db"
@@ -26,26 +26,22 @@ abstract class AppDatabase : RoomDatabase() {
 
         private suspend fun populateDatabase() {
             INSTANCE?.let { database ->
-                // Groups
-                val groupDao = database.groupDao()
-                val group1 = Group(1, "Группа 1")
-                val group2 = Group(2, "Группа 2")
-                val group3 = Group(3, "Группа 3")
-                groupDao.insert(group1)
-                groupDao.insert(group2)
-                groupDao.insert(group3)
-                // Students
-                val studentDao = database.studentDao()
-                val student1 = Student("First1", "Last1", group1, "+79998887761", "st1@m.ru")
-                val student2 = Student("First2", "Last2", group2, "+79998887762", "st2@m.ru")
-                val student3 = Student("First3", "Last3", group3, "+79998887763", "st3@m.ru")
-                val student4 = Student("First4", "Last4", group3, "+79998887764", "st4@m.ru")
-                val student5 = Student("First5", "Last5", group2, "+79998887765", "st5@m.ru")
-                studentDao.insert(student1)
-                studentDao.insert(student2)
-                studentDao.insert(student3)
-                studentDao.insert(student4)
-                studentDao.insert(student5)
+                // Users
+                val userDao = database.userDao()
+                val user1 = User(1, "Sergey", "brook.sergey@gmail.com")
+                userDao.insert(user1)
+                // Tasks
+                val taskDao = database.taskDao()
+                val task1 = Task("First1", "Last1","12.12.2023",false, user1)
+                val task2 = Task("First2", "Last2","15.12.2023",false, user1)
+                val task3 = Task("First3", "Last3","10.12.2023",false, user1)
+                val task4 = Task("First4", "Last4","31.12.2023",false, user1)
+                val task5 = Task("First5", "Last5","05.12.2023",false, user1)
+                taskDao.insert(task1)
+                taskDao.insert(task2)
+                taskDao.insert(task3)
+                taskDao.insert(task4)
+                taskDao.insert(task5)
             }
         }
 

@@ -1,11 +1,13 @@
-package ru.ulstu.`is`.pmu.ui.student.edit
+package ru.ulstu.`is`.pmu.ui.task.edit
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -31,42 +33,43 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import java.util.Date
 import kotlinx.coroutines.launch
 import ru.ulstu.`is`.pmu.R
-import ru.ulstu.`is`.pmu.database.student.model.Group
-import ru.ulstu.`is`.pmu.database.student.model.Student
+import ru.ulstu.`is`.pmu.database.task.model.User
+import ru.ulstu.`is`.pmu.database.task.model.Task
 import ru.ulstu.`is`.pmu.ui.AppViewModelProvider
 import ru.ulstu.`is`.pmu.ui.theme.PmudemoTheme
 
 @Composable
-fun StudentEdit(
+fun TaskEdit(
     navController: NavController,
-    viewModel: StudentEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
-    groupViewModel: GroupDropDownViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: TaskEditViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    userViewModel: UserDropDownViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
-    groupViewModel.setCurrentGroup(viewModel.studentUiState.studentDetails.groupId)
-    StudentEdit(
-        studentUiState = viewModel.studentUiState,
-        groupUiState = groupViewModel.groupUiState,
-        groupsListUiState = groupViewModel.groupsListUiState,
+    userViewModel.setCurrentUser(viewModel.taskUiState.taskDetails.userId)
+    TaskEdit(
+        taskUiState = viewModel.taskUiState,
+        userUiState = userViewModel.userUiState,
+        usersListUiState = userViewModel.usersListUiState,
         onClick = {
             coroutineScope.launch {
-                viewModel.saveStudent()
+                viewModel.saveTask()
                 navController.popBackStack()
             }
         },
         onUpdate = viewModel::updateUiState,
-        onGroupUpdate = groupViewModel::updateUiState
+        onUserUpdate = userViewModel::updateUiState
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun GroupDropDown(
-    groupUiState: GroupUiState,
-    groupsListUiState: GroupsListUiState,
-    onGroupUpdate: (Group) -> Unit
+private fun UserDropDown(
+    userUiState: UserUiState,
+    usersListUiState: UsersListUiState,
+    onUserUpdate: (User) -> Unit
 ) {
     var expanded: Boolean by remember { mutableStateOf(false) }
     ExposedDropdownMenuBox(
@@ -78,8 +81,8 @@ private fun GroupDropDown(
         }
     ) {
         TextField(
-            value = groupUiState.group?.name
-                ?: stringResource(id = R.string.student_group_not_select),
+            value = userUiState.user?.name
+                ?: stringResource(id = R.string.task_user_not_select),
             onValueChange = {},
             readOnly = true,
             trailingIcon = {
@@ -96,13 +99,13 @@ private fun GroupDropDown(
                 .background(Color.White)
                 .exposedDropdownSize()
         ) {
-            groupsListUiState.groupList.forEach { group ->
+            usersListUiState.userList.forEach { user ->
                 DropdownMenuItem(
                     text = {
-                        Text(text = group.name)
+                        Text(text = user.name)
                     },
                     onClick = {
-                        onGroupUpdate(group)
+                        onUserUpdate(user)
                         expanded = false
                     }
                 )
@@ -113,14 +116,15 @@ private fun GroupDropDown(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun StudentEdit(
-    studentUiState: StudentUiState,
-    groupUiState: GroupUiState,
-    groupsListUiState: GroupsListUiState,
+private fun TaskEdit(
+    taskUiState: TaskUiState,
+    userUiState: UserUiState,
+    usersListUiState: UsersListUiState,
     onClick: () -> Unit,
-    onUpdate: (StudentDetails) -> Unit,
-    onGroupUpdate: (Group) -> Unit
+    onUpdate: (TaskDetails) -> Unit,
+    onUserUpdate: (User) -> Unit
 ) {
+    var showInvalidDateDialog by remember { mutableStateOf(false) }
     Column(
         Modifier
             .fillMaxWidth()
@@ -128,68 +132,84 @@ private fun StudentEdit(
     ) {
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = studentUiState.studentDetails.firstName,
-            onValueChange = { onUpdate(studentUiState.studentDetails.copy(firstName = it)) },
-            label = { Text(stringResource(id = R.string.student_firstname)) },
+            value = taskUiState.taskDetails.name,
+            onValueChange = { onUpdate(taskUiState.taskDetails.copy(name = it)) },
+            label = { Text(stringResource(id = R.string.task_firstname)) },
             singleLine = true
         )
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = studentUiState.studentDetails.lastName,
-            onValueChange = { onUpdate(studentUiState.studentDetails.copy(lastName = it)) },
-            label = { Text(stringResource(id = R.string.student_lastname)) },
+            value = taskUiState.taskDetails.description,
+            onValueChange = { onUpdate(taskUiState.taskDetails.copy(description = it)) },
+            label = { Text(stringResource(id = R.string.task_lastname)) },
             singleLine = true
         )
-        GroupDropDown(
-            groupUiState = groupUiState,
-            groupsListUiState = groupsListUiState,
-            onGroupUpdate = {
-                onUpdate(studentUiState.studentDetails.copy(groupId = it.uid))
-                onGroupUpdate(it)
-            }
-        )
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = studentUiState.studentDetails.phone,
-            onValueChange = { onUpdate(studentUiState.studentDetails.copy(phone = it)) },
-            label = { Text(stringResource(id = R.string.student_phone)) },
+            value = taskUiState.taskDetails.endDate,
+            onValueChange = { newDate -> onUpdate(taskUiState.taskDetails.copy(endDate = newDate)) },
+            label = { Text(stringResource(id = R.string.task_endDate)) },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
         )
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            value = studentUiState.studentDetails.email,
-            onValueChange = { onUpdate(studentUiState.studentDetails.copy(email = it)) },
-            label = { Text(stringResource(id = R.string.student_email)) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-        )
+//        UserDropDown(
+//            userUiState = userUiState,
+//            usersListUiState = usersListUiState,
+//            onUserUpdate = {
+//                onUpdate(taskUiState.taskDetails.copy(userId = it.uid))
+//                onUserUpdate(it)
+//            }
+//        )
         Button(
-            onClick = onClick,
-            enabled = studentUiState.isEntryValid,
+            onClick = {
+                if (!isValidDate(taskUiState.taskDetails.endDate)) {
+                    showInvalidDateDialog = true
+                } else {
+                    onClick()
+                }
+            },
+            enabled = taskUiState.isEntryValid,
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = stringResource(R.string.student_save_button))
+            Text(text = stringResource(R.string.task_save_button))
         }
     }
+
+    if (showInvalidDateDialog) {
+        AlertDialog(
+            onDismissRequest = { showInvalidDateDialog = false },
+            title = { Text("Неверный формат даты") },
+            text = { Text("Введите дату по шаблону: 01.12.2023") },
+            confirmButton = {
+                Button(onClick = { showInvalidDateDialog = false }) {
+                    Text("ОК")
+                }
+            }
+        )
+    }
+}
+
+fun isValidDate(date: String): Boolean {
+    val regex = Regex("""^\d{2}\.\d{2}\.\d{4}$""")
+    return regex.matches(date)
 }
 
 @Preview(name = "Light Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(name = "Dark Mode", showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun StudentEditPreview() {
+fun TaskEditPreview() {
     PmudemoTheme {
         Surface(
             color = MaterialTheme.colorScheme.background
         ) {
-            StudentEdit(
-                studentUiState = Student.getStudent().toUiState(true),
-                groupUiState = Group.DEMO_GROUP.toUiState(),
-                groupsListUiState = GroupsListUiState(listOf()),
+            TaskEdit(
+                taskUiState = Task.getTask().toUiState(true),
+                userUiState = User.DEMO_User.toUiState(),
+                usersListUiState = UsersListUiState(listOf()),
                 onClick = {},
                 onUpdate = {},
-                onGroupUpdate = {}
+                onUserUpdate = {}
             )
         }
     }

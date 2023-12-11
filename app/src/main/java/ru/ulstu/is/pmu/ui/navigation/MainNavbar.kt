@@ -30,8 +30,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ru.ulstu.`is`.pmu.R
 import ru.ulstu.`is`.pmu.ui.about.About
-import ru.ulstu.`is`.pmu.ui.student.edit.StudentEdit
-import ru.ulstu.`is`.pmu.ui.student.list.StudentList
+import ru.ulstu.`is`.pmu.ui.task.edit.TaskEdit
+import ru.ulstu.`is`.pmu.ui.task.list.TaskList
+import ru.ulstu.`is`.pmu.ui.task.list.TaskListEndDate
+import ru.ulstu.`is`.pmu.ui.task.list.TaskListFavorite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,16 +100,18 @@ fun Navhost(
 ) {
     NavHost(
         navController,
-        startDestination = Screen.StudentList.route,
+        startDestination = Screen.TaskList.route,
         modifier.padding(innerPadding)
     ) {
-        composable(Screen.StudentList.route) { StudentList(navController) }
+        composable(Screen.TaskList.route) { TaskList(navController) }
+        composable(Screen.TaskListEndDate.route) { TaskListEndDate(navController) }
+        composable(Screen.TaskListFavorite.route) { TaskListFavorite(navController) }
         composable(Screen.About.route) { About() }
         composable(
-            Screen.StudentEdit.route,
+            Screen.TaskEdit.route,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) {
-            StudentEdit(navController)
+            TaskEdit(navController)
         }
     }
 }

@@ -1,19 +1,20 @@
 <resources>
-    <string name="app_name">pmu-demo</string>
-    <string name="student_firstname">Имя</string>
-    <string name="student_lastname">Фамилия</string>
-    <string name="student_group">Группа</string>
-    <string name="student_phone">Телефон</string>
-    <string name="student_email">e-mail</string>
-    <string name="student_main_title">Список студентов</string>
-    <string name="student_view_title">Профиль студента</string>
-    <string name="student_empty_description">Записи о студентах отсутствуют</string>
-    <string name="student_group_not_select">Группа не указана</string>
-    <string name="student_save_button">Сохранить</string>
+    <string name="app_name">PMU-ToDoList</string>
+    <string name="task_firstname">Название</string>
+    <string name="task_lastname">Описание</string>
+    <string name="task_main_title">Список задач</string>
+    <string name="task_date_title">Ближайшие</string>
+    <string name="task_favorite">Избранные</string>
+    <string name="task_endDate">Дата окончания задачи</string>
+    <string name="task_view_title">Задача</string>
+    <string name="task_empty_description">Задачи отсутствуют</string>
+    <string name="task_user_not_select">Пользователь не указан</string>
+    <string name="task_save_button">Сохранить</string>
     <string name="about_title">О нас</string>
+    <string name="creator">Связаться с разработчиком</string>
     <string name="about_text">
-        <p>Это текст <b>о нас</b>!</p>\n\n
-        <p>Здесь могла быть Ваша реклама!</p>\n\n
-        <p>Наш сайт <a href="https://ulstu.ru">ulstu.ru</a></p>
+        <p><b>Задачник</b> - ваш личный помощник в организации задач!</p>\n\n
+        <p>Создавайте списки дел, отмечайте важные задачи и следите за своим прогрессом. Простой и интуитивно понятный интерфейс поможет вам организовать ваш день эффективно.</p>\n\n
+        <p>Планируйте, реализуйте и достигайте своих целей с нашим задачником</p>
     </string>
 </resources>
